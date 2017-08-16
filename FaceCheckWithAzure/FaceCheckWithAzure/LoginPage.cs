@@ -30,7 +30,7 @@ namespace FaceCheckWithAzure
         private StackLayout RootStacLayout;
 
 
-        private const string subscriptionKey = "*Insert Subsription Key Here*";
+        private const string subscriptionKey = "0eabd93a3f424013bb69cec4e6ca534a";
         private const string uriBase = "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/";
         private DetectResponse[] tempDetectResponse;
         private string faceId1;
@@ -184,7 +184,7 @@ namespace FaceCheckWithAzure
             }
         }
 
-        //****************SetUI 部分 ***********
+        //**************** SetUI 部分 ***************
 
         private void SetUIsForThisView()
         {
@@ -204,8 +204,9 @@ namespace FaceCheckWithAzure
                 HorizontalOptions = LayoutOptions.Center,
                 LoadingPlaceholder = "icon.png",
                 Aspect = Aspect.AspectFit,
+                
             };
-            TwitterImage.Transformations.Add(new CircleTransformation() { });
+            TwitterImage.Transformations.Add(new CircleTransformation() { BorderSize = 4, BorderHexColor = "#333333"});
 
             this.handle = new Entry()
             {
@@ -312,8 +313,8 @@ namespace FaceCheckWithAzure
                 }
                 else
                 {
-                    await this.Navigation.PushAsync(new MainPage());
-                   // await DisplayAlert("登录失败", "经验证，与注册脸不是同一张脸", "确定");
+                   // await this.Navigation.PushAsync(new MainPage());
+                    await DisplayAlert("登录失败", "经验证，与注册脸不是同一张脸", "确定");
                 }
             }
         }
