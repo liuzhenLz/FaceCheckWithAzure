@@ -12,7 +12,8 @@ namespace FaceCheckWithAzure
         public App()
         {
 
-            MainPage = new FaceCheckWithAzure.MainPage();
+            // MainPage = new FaceCheckWithAzure.MainPage();
+            MainPage = new NavigationPage(new LoginPage());
         }
 
         protected override void OnStart()

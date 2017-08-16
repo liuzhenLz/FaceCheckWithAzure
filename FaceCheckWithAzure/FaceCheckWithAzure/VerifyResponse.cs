@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Xamarin.Forms;
 
 namespace FaceCheckWithAzure
 {
-    public partial class MainPage : ContentPage
+    public class VerifyResponse
     {
-        public MainPage()
-        {
-           InitializeComponent();
-        }
+        public bool isIdentical { get; set; }
+        public double confidence { get; set; }
     }
 }

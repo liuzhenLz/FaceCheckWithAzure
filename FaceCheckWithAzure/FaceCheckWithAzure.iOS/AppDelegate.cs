@@ -24,8 +24,36 @@ namespace FaceCheckWithAzure.iOS
         {
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App());
-
+            //FFImageLoading init
+            FFImageLoading.Forms.Touch.CachedImageRenderer.Init();
+            //FFImageLoading config
+            var config = new FFImageLoading.Config.Configuration()
+            {
+                VerboseLogging = false,
+                VerbosePerformanceLogging = false,
+                VerboseMemoryCacheLogging = false,
+                VerboseLoadingCancelledLogging = false,
+                Logger = new CustomLogger(),
+            };
+            FFImageLoading.ImageService.Instance.Initialize(config);
             return base.FinishedLaunching(app, options);
+        }
+    }
+    public class CustomLogger : FFImageLoading.Helpers.IMiniLogger
+    {
+        public void Debug(string message)
+        {
+            Console.WriteLine(message);
+        }
+
+        public void Error(string errorMessage)
+        {
+            Console.WriteLine(errorMessage);
+        }
+
+        public void Error(string errorMessage, Exception ex)
+        {
+            Error(errorMessage + System.Environment.NewLine + ex.ToString());
         }
     }
 }
