@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 using Plugin.Media.Abstractions;
 using Newtonsoft.Json;
 using Org.Apache.Http.Client;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.IO;
 using FFImageLoading.Forms;
 using FFImageLoading.Transformations;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace FaceCheckWithAzure
 {
@@ -212,12 +212,12 @@ namespace FaceCheckWithAzure
                 HeightRequest = 44,
                 WidthRequest = 80,
             };
-            chooseAccoutBtn.Clicked += ChooseAccoutBtn_Clicked;
+            chooseAccountBtn.Clicked += ChooseAccoutBtn_Clicked;
             var accoutStackL = new StackLayout()
             {
                 HeightRequest = 44,
                 Orientation = StackOrientation.Horizontal,
-                Children = { handle, chooseAccoutBtn },
+                Children = { HandleAccount, chooseAccountBtn },
             };
 
             this.TakePhoneBtn = new Button()
@@ -287,12 +287,12 @@ namespace FaceCheckWithAzure
         private async void VerifyBtn_Clicked(object sender, EventArgs e)
         {
             Face();
-            //HttpClient client = new HttpClient();
-            //client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
 
-            //string requestParameters = "returnFaceId=true";
-            //string uri = uriBase + "verify?" + requestParameters;
-            //HttpResponseMessage response;
+            string requestParameters = "returnFaceId=true";
+            string uri = uriBase + "verify?" + requestParameters;
+            HttpResponseMessage response;
 
             byte[] byteData = Encoding.UTF8.GetBytes("{ \"faceId1\":\"" + faceId1 + "\",\"faceId2\":\"" + faceId2 + "\"}");
             using (ByteArrayContent content = new ByteArrayContent(byteData))
@@ -309,7 +309,7 @@ namespace FaceCheckWithAzure
                 }
                 else
                 {
-                   // await this.Navigation.PushAsync(new MainPage());
+                    // await this.Navigation.PushAsync(new MainPage());
                     await DisplayAlert("登录失败", "经验证，与注册脸不是同一张脸", "确定");
                 }
             }

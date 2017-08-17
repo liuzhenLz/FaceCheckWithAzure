@@ -50,7 +50,7 @@
     <CodesignKey>iPhone Developer: Chao Yang (59H6X9G472)</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <CodesignProvision>dd59534c-6e1b-476b-93be-f93af1f59aaa</CodesignProvision>
+    <CodesignProvision>e4c0ff1a-784b-4346-8aa5-4534113f1735</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -143,9 +143,6 @@
     <Reference Include="FFImageLoading.Transformations, Version=1.0.6265.32777, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Xamarin.FFImageLoading.Transformations.2.2.9\lib\Xamarin.iOS10\FFImageLoading.Transformations.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>C:\Users\summer\Downloads\aip-face-csharp-sdk-2.0.0\Face\thirdparty\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Plugin.Media, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Xam.Plugin.Media.3.0.1\lib\Xamarin.iOS10\Plugin.Media.dll</HintPath>
