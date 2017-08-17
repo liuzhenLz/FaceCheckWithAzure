@@ -11,7 +11,6 @@ namespace FaceCheckWithAzure
     {
         public App()
         {
-            InitializeComponent();
 
             // MainPage = new FaceCheckWithAzure.MainPage();
             MainPage = new NavigationPage(new LoginPage());
