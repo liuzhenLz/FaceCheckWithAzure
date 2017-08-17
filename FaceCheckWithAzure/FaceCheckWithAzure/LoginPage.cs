@@ -51,7 +51,6 @@ namespace FaceCheckWithAzure
         {
             var client = new Baidu.Aip.Face.Face("uGU69Iudv3GFAePr1ZOZWGzp", "U7oZ4EatcctoEKXOFCbpSzDyIHEZUW3p");           
 
-
             byte[] bytes = new byte[_imageStream.Length];
             _imageStream.Read(bytes, 0, bytes.Length);
             // 设置当前流的位置为流的开始
