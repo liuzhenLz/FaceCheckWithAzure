@@ -20,9 +20,9 @@ namespace FaceCheckWithAzure
     public class LoginPage : ContentPage
     {
 
-        private CachedImage CameraImage;
-        private CachedImage TwitterImage;
-        private Entry handle;
+        private CachedImage CameraImage { get; set; }
+        private CachedImage TwitterImage { get; set; }
+        private Entry HandleAccount;
 
         private Button TakePhoneBtn;
         private Button VerifyBtn;
@@ -31,7 +31,7 @@ namespace FaceCheckWithAzure
 
 
         private const string subscriptionKey = "0eabd93a3f424013bb69cec4e6ca534a";
-        private const string uriBase = "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/";
+        private const string uriBase = "https://api.cognitive.azure.cn/face/v1.0/";
         private DetectResponse[] tempDetectResponse;
         private string faceId1;
         private string faceId2;
@@ -39,43 +39,16 @@ namespace FaceCheckWithAzure
 
         private Plugin.Media.Abstractions.MediaFile mediaFile { get; set; }
 
-        private async Task<byte[]> GetTakeImageStream()
-        {
-            if (Device.RuntimePlatform == Device.iOS)
-            {
-                if (CrossMedia.Current.IsTakePhotoSupported)
-                {
-                    await Task.Yield();
-                    var pickMediaOptions = new PickMediaOptions
-                    {
-                        PhotoSize = PhotoSize.Large,
-                    };
-
-                    mediaFile = await CrossMedia.Current.PickPhotoAsync(pickMediaOptions);
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        mediaFile.GetStream().CopyTo(ms);
-                        byte[] bytes = ms.ToArray();
-                        return bytes;
-                    }
-                }
-                else
-                {
-                    await Application.Current.MainPage.DisplayAlert("提示", "您尚未开启相册权限,您可以去 设置->隐私->相册 开启访问相册权限", "知道了");
-                }
-            }
-            return null;
-        }
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            string url = "https://twitter.com/" + handle.Text + "/profile_image?size=original";
+            string url = "https://twitter.com/" + HandleAccount.Text + "/profile_image?size=original";
             TwitterImage.Source = url;
             GetFaceIdUrl(url);
         }
         private void ChooseAccoutBtn_Clicked(object sender, EventArgs e)
         {
-            string url = "https://twitter.com/" + handle.Text + "/profile_image?size=original";
+            string url = "https://twitter.com/" + HandleAccount.Text + "/profile_image?size=original";
             TwitterImage.Source = url;
             GetFaceIdUrl(url);
         }
@@ -93,7 +66,7 @@ namespace FaceCheckWithAzure
             string requestParameters = "returnFaceId=true";
 
             // 拼接验证 API
-            string uri = uriBase + "detect?" + requestParameters;
+            string postUrlStr = uriBase + "detect?" + requestParameters;
 
             HttpResponseMessage response;
 
@@ -103,7 +76,7 @@ namespace FaceCheckWithAzure
             using (ByteArrayContent content = new ByteArrayContent(byteData))
             {
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                response = await client.PostAsync(uri, content);
+                response = await client.PostAsync(postUrlStr, content);
                 if (response.IsSuccessStatusCode)
                 {
                     string contentString = await response.Content.ReadAsStringAsync();
@@ -131,7 +104,6 @@ namespace FaceCheckWithAzure
             tempDetectResponse = JsonConvert.DeserializeObject<DetectResponse[]>(json);
             return tempDetectResponse[0].faceId;
         }
-
         private byte[] ResizeImage(Plugin.Media.Abstractions.MediaFile imageFile)
         {
             if (imageFile != null)
@@ -195,6 +167,8 @@ namespace FaceCheckWithAzure
                 Aspect = Aspect.AspectFit,
                 BackgroundColor = Color.Aqua,
             };
+
+
             this.TwitterImage = new CachedImage()
             {
                 HeightRequest = 100,
@@ -204,11 +178,11 @@ namespace FaceCheckWithAzure
                 HorizontalOptions = LayoutOptions.Center,
                 LoadingPlaceholder = "icon.png",
                 Aspect = Aspect.AspectFit,
-                
-            };
-            TwitterImage.Transformations.Add(new CircleTransformation() { BorderSize = 4, BorderHexColor = "#333333"});
 
-            this.handle = new Entry()
+            };
+            TwitterImage.Transformations.Add(new CircleTransformation() { BorderSize = 4, BorderHexColor = "#333333" });
+
+            this.HandleAccount = new Entry()
             {
                 Text = "@ZhenLiu2017",
                 HeightRequest = 44,
@@ -216,7 +190,7 @@ namespace FaceCheckWithAzure
                 HorizontalOptions = LayoutOptions.StartAndExpand,
                 Keyboard = Keyboard.Email,
             };
-            var chooseAccoutBtn = new Button()
+            var chooseAccountBtn = new Button()
             {
                 BackgroundColor = Color.Orange,
                 Text = "切换账户",
@@ -224,12 +198,12 @@ namespace FaceCheckWithAzure
                 HeightRequest = 44,
                 WidthRequest = 80,
             };
-            chooseAccoutBtn.Clicked += ChooseAccoutBtn_Clicked;
-            var accoutStackL = new StackLayout()
+            chooseAccountBtn.Clicked += ChooseAccoutBtn_Clicked;
+            var accountStackL = new StackLayout()
             {
                 HeightRequest = 44,
                 Orientation = StackOrientation.Horizontal,
-                Children = { handle, chooseAccoutBtn },
+                Children = { HandleAccount, chooseAccountBtn },
             };
 
             this.TakePhoneBtn = new Button()
@@ -268,7 +242,7 @@ namespace FaceCheckWithAzure
                 Children =
                 {
                     TwitterImage,
-                    accoutStackL,
+                    accountStackL,
                     chooseStack,
                     CameraImage,
                 }
@@ -282,7 +256,7 @@ namespace FaceCheckWithAzure
                 SaveToAlbum = false,
                 DefaultCamera = CameraDevice.Front,
             };
-            var mediaFile = await CrossMedia.Current.TakePhotoAsync(options);
+            mediaFile = await CrossMedia.Current.TakePhotoAsync(options);
             CameraImage.Source = ImageSource.FromStream(() =>
             {
                 return mediaFile.GetStream();
@@ -313,8 +287,8 @@ namespace FaceCheckWithAzure
                 }
                 else
                 {
-                   // await this.Navigation.PushAsync(new MainPage());
-                    await DisplayAlert("登录失败", "经验证，与注册脸不是同一张脸", "确定");
+                    await this.Navigation.PushAsync(new MainPage());
+                    //await DisplayAlert("登录失败", "经验证，与注册脸不是同一张脸", "确定");
                 }
             }
         }
