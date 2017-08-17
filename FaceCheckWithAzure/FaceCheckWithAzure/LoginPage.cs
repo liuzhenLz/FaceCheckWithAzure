@@ -20,9 +20,9 @@ namespace FaceCheckWithAzure
     public class LoginPage : ContentPage
     {
 
-        private CachedImage CameraImage;
-        private CachedImage TwitterImage;
-        private Entry handle;
+        private CachedImage CameraImage { get; set; }
+        private CachedImage TwitterImage { get; set; }
+        private Entry HandleAccount;
 
         private Button TakePhoneBtn;
         private Button VerifyBtn;
@@ -36,6 +36,7 @@ namespace FaceCheckWithAzure
         private string faceId1;
         private string faceId2;
         private VerifyResponse results;
+        private Stream _imageStream;
 
         private Plugin.Media.Abstractions.MediaFile mediaFile { get; set; }
 
@@ -69,13 +70,27 @@ namespace FaceCheckWithAzure
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            string url = "https://twitter.com/" + handle.Text + "/profile_image?size=original";
+            string url = "https://twitter.com/" + HandleAccount.Text + "/profile_image?size=original";
             TwitterImage.Source = url;
             GetFaceIdUrl(url);
         }
+        public void Face()
+        {
+            var client = new Baidu.Aip.Face.Face("uGU69Iudv3GFAePr1ZOZWGzp", "U7oZ4EatcctoEKXOFCbpSzDyIHEZUW3p");           
+
+
+            byte[] bytes = new byte[_imageStream.Length];
+            _imageStream.Read(bytes, 0, bytes.Length);
+            // 设置当前流的位置为流的开始
+            _imageStream.Seek(0, SeekOrigin.Begin);
+            var images = new byte[][] { bytes, bytes };
+
+            // 人脸对比
+            var result = client.FaceMatch(images);
+        }
         private void ChooseAccoutBtn_Clicked(object sender, EventArgs e)
         {
-            string url = "https://twitter.com/" + handle.Text + "/profile_image?size=original";
+            string url = "https://twitter.com/" + HandleAccount.Text + "/profile_image?size=original";
             TwitterImage.Source = url;
             GetFaceIdUrl(url);
         }
@@ -193,7 +208,7 @@ namespace FaceCheckWithAzure
                 HeightRequest = 200,
                 WidthRequest = 200,
                 Aspect = Aspect.AspectFit,
-                BackgroundColor = Color.Aqua,
+                //BackgroundColor = Color.Aqua,
             };
             this.TwitterImage = new CachedImage()
             {
@@ -204,16 +219,16 @@ namespace FaceCheckWithAzure
                 HorizontalOptions = LayoutOptions.Center,
                 LoadingPlaceholder = "icon.png",
                 Aspect = Aspect.AspectFit,
-                
-            };
-            TwitterImage.Transformations.Add(new CircleTransformation() { BorderSize = 4, BorderHexColor = "#333333"});
 
-            this.handle = new Entry()
+            };
+            TwitterImage.Transformations.Add(new CircleTransformation() { BorderSize = 4, BorderHexColor = "#333333" });
+
+            this.HandleAccount = new Entry()
             {
                 Text = "@ZhenLiu2017",
                 HeightRequest = 44,
-                WidthRequest = 200,
-                HorizontalOptions = LayoutOptions.StartAndExpand,
+                //WidthRequest = 200,
+                //HorizontalOptions = LayoutOptions.StartAndExpand,
                 Keyboard = Keyboard.Email,
             };
             var chooseAccoutBtn = new Button()
@@ -225,12 +240,12 @@ namespace FaceCheckWithAzure
                 WidthRequest = 80,
             };
             chooseAccoutBtn.Clicked += ChooseAccoutBtn_Clicked;
-            var accoutStackL = new StackLayout()
-            {
-                HeightRequest = 44,
-                Orientation = StackOrientation.Horizontal,
-                Children = { handle, chooseAccoutBtn },
-            };
+            //var accoutStackL = new StackLayout()
+            //{
+            //    HeightRequest = 44,
+            //    Orientation = StackOrientation.Horizontal,
+            //    Children = { HandleAccount, chooseAccoutBtn },
+            //};
 
             this.TakePhoneBtn = new Button()
             {
@@ -265,14 +280,21 @@ namespace FaceCheckWithAzure
             RootStacLayout = new StackLayout()
             {
                 Padding = new Thickness(10, 10, 10, 10),
+                BackgroundColor = Color.Transparent,
                 Children =
                 {
                     TwitterImage,
-                    accoutStackL,
+                    HandleAccount,
+                    chooseAccoutBtn,
                     chooseStack,
                     CameraImage,
                 }
             };
+            Grid pageGrid = new Grid { HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand };
+            pageGrid.Children.Add(new Image { Source = "bg.png" }, 0, 0);
+            pageGrid.Children.Add(RootStacLayout, 0, 0);
+            Content = pageGrid;
+
         }
 
         private async void TakePhoneBtn_Clicked(object sender, EventArgs e)
@@ -287,36 +309,38 @@ namespace FaceCheckWithAzure
             {
                 return mediaFile.GetStream();
             });
+            _imageStream = mediaFile.GetStream();
         }
 
         private async void VerifyBtn_Clicked(object sender, EventArgs e)
         {
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+            Face();
+            //HttpClient client = new HttpClient();
+            //client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
 
-            string requestParameters = "returnFaceId=true";
-            string uri = uriBase + "verify?" + requestParameters;
-            HttpResponseMessage response;
+            //string requestParameters = "returnFaceId=true";
+            //string uri = uriBase + "verify?" + requestParameters;
+            //HttpResponseMessage response;
 
-            byte[] byteData = Encoding.UTF8.GetBytes("{ \"faceId1\":\"" + faceId1 + "\",\"faceId2\":\"" + faceId2 + "\"}");
-            using (ByteArrayContent content = new ByteArrayContent(byteData))
-            {
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                response = await client.PostAsync(uri, content);
-                string contentString = await response.Content.ReadAsStringAsync();
-                results = JsonConvert.DeserializeObject<VerifyResponse>(contentString);
-                if (results.isIdentical == true)
-                {
-                    //  ResulLabel.Text = "Faces belong to the same person with a confidence score of " + results.confidence.ToString();
-                    //验证成功_允许登录
-                    await this.Navigation.PushAsync(new MainPage());
-                }
-                else
-                {
-                   // await this.Navigation.PushAsync(new MainPage());
-                    await DisplayAlert("登录失败", "经验证，与注册脸不是同一张脸", "确定");
-                }
-            }
+            //byte[] byteData = Encoding.UTF8.GetBytes("{ \"faceId1\":\"" + faceId1 + "\",\"faceId2\":\"" + faceId2 + "\"}");
+            //using (ByteArrayContent content = new ByteArrayContent(byteData))
+            //{
+            //    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            //    response = await client.PostAsync(uri, content);
+            //    string contentString = await response.Content.ReadAsStringAsync();
+            //    results = JsonConvert.DeserializeObject<VerifyResponse>(contentString);
+            //    if (results.isIdentical == true)
+            //    {
+            //        //  ResulLabel.Text = "Faces belong to the same person with a confidence score of " + results.confidence.ToString();
+            //        //验证成功_允许登录
+            //        await this.Navigation.PushAsync(new MainPage());
+            //    }
+            //    else
+            //    {
+            //        // await this.Navigation.PushAsync(new MainPage());
+            //        await DisplayAlert("登录失败", "经验证，与注册脸不是同一张脸", "确定");
+            //    }
+            //}
         }
 
         public LoginPage()
@@ -328,7 +352,7 @@ namespace FaceCheckWithAzure
             NavigationPage.SetHasNavigationBar(this, false);
 
             SetUIsForThisView();
-            Content = RootStacLayout;
+
         }
     }
 }
