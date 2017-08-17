@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AipSdk">
-      <HintPath>C:\Users\summer\Downloads\aip-face-csharp-sdk-2.0.0\Face\AipSdk.dll</HintPath>
+      <HintPath>..\..\Lib\AipSdk.dll</HintPath>
     </Reference>
     <Reference Include="FFImageLoading, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Xamarin.FFImageLoading.2.2.9\lib\portable-net45+win8+wpa81+wp8\FFImageLoading.dll</HintPath>
